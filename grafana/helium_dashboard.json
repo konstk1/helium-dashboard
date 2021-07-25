@@ -1,0 +1,1585 @@
+{
+    "annotations": {
+      "list": [
+        {
+          "builtIn": 1,
+          "datasource": "-- Grafana --",
+          "enable": true,
+          "hide": true,
+          "iconColor": "rgba(0, 211, 255, 1)",
+          "name": "Annotations & Alerts",
+          "type": "dashboard"
+        }
+      ]
+    },
+    "editable": true,
+    "gnetId": null,
+    "graphTooltip": 0,
+    "id": 11,
+    "links": [],
+    "panels": [
+      {
+        "datasource": null,
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "palette-classic"
+            },
+            "custom": {
+              "axisLabel": "",
+              "axisPlacement": "auto",
+              "barAlignment": 0,
+              "drawStyle": "bars",
+              "fillOpacity": 100,
+              "gradientMode": "opacity",
+              "hideFrom": {
+                "legend": false,
+                "tooltip": false,
+                "viz": false
+              },
+              "lineInterpolation": "linear",
+              "lineWidth": 1,
+              "pointSize": 5,
+              "scaleDistribution": {
+                "type": "linear"
+              },
+              "showPoints": "auto",
+              "spanNulls": false,
+              "stacking": {
+                "group": "A",
+                "mode": "none"
+              },
+              "thresholdsStyle": {
+                "mode": "off"
+              }
+            },
+            "mappings": [],
+            "min": 0,
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                },
+                {
+                  "color": "red",
+                  "value": 80
+                }
+              ]
+            },
+            "unit": "HNT"
+          },
+          "overrides": [
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "beacons"
+              },
+              "properties": [
+                {
+                  "id": "custom.axisPlacement",
+                  "value": "right"
+                },
+                {
+                  "id": "unit",
+                  "value": "none"
+                },
+                {
+                  "id": "decimals",
+                  "value": 0
+                },
+                {
+                  "id": "custom.drawStyle",
+                  "value": "line"
+                },
+                {
+                  "id": "custom.fillOpacity",
+                  "value": 0
+                },
+                {
+                  "id": "color",
+                  "value": {
+                    "fixedColor": "rgba(255, 255, 0, 0.39)",
+                    "mode": "fixed"
+                  }
+                },
+                {
+                  "id": "custom.axisLabel",
+                  "value": "beacons"
+                }
+              ]
+            }
+          ]
+        },
+        "gridPos": {
+          "h": 7,
+          "w": 7,
+          "x": 0,
+          "y": 0
+        },
+        "hideTimeOverride": true,
+        "id": 10,
+        "links": [
+          {
+            "targetBlank": true,
+            "title": "Dandy Garnet Bison",
+            "url": "https://explorer.helium.com/hotspots/helium-hotspot-address/activity"
+          }
+        ],
+        "options": {
+          "legend": {
+            "calcs": [],
+            "displayMode": "list",
+            "placement": "bottom"
+          },
+          "tooltip": {
+            "mode": "multi"
+          }
+        },
+        "targets": [
+          {
+            "query": "from(bucket: \"dashboard\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"helium_activity\")\n  |> filter(fn: (r) => r[\"type\"] == \"rewards\")\n  |> filter(fn: (r) => r[\"_field\"] == \"reward\")\n  |> filter(fn: (r) => r[\"hotspot\"] == \"helium-hotspot-address\")\n  |> timeShift(duration: -4h)\n  |> aggregateWindow(every: 1d, fn: sum, timeSrc: \"_start\", createEmpty: true)\n  |> timeShift(duration: 4h)\n  |> yield(name: \"rewards\")\n\nfrom(bucket: \"dashboard\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"helium_activity\")\n  |> filter(fn: (r) => r[\"type\"] == \"beacon_received\")\n  |> filter(fn: (r) => r[\"_field\"] == \"witnesses\")\n  |> filter(fn: (r) => r[\"hotspot\"] == \"helium-hotspot-address\")\n  |> timeShift(duration: -4h)\n  |> aggregateWindow(every: 1d, fn: count, timeSrc: \"_start\", createEmpty: true)\n  |> timeShift(duration: 4h)\n  |> yield(name: \"beacons\")",
+            "refId": "A"
+          }
+        ],
+        "timeShift": "0d/d",
+        "title": "Daily Rewards",
+        "transformations": [
+          {
+            "id": "seriesToColumns",
+            "options": {
+              "byField": "_time"
+            }
+          },
+          {
+            "id": "organize",
+            "options": {
+              "excludeByName": {},
+              "indexByName": {
+                "_time": 0,
+                "reward {hotspot=\"helium-hotspot-address\", name=\"helium_activity\", type=\"rewards\"}": 1,
+                "witnesses {hotspot=\"helium-hotspot-address\", name=\"helium_activity\", type=\"beacon_received\"}": 2
+              },
+              "renameByName": {
+                "reward {hotspot=\"helium-hotspot-address\", name=\"helium_activity\", type=\"rewards\"}": "rewards",
+                "reward {hotspot=\"helium-hotspot-address\", type=\"rewards\"}": "rewards",
+                "witnesses {hotspot=\"helium-hotspot-address\", name=\"helium_activity\", type=\"beacon_received\"}": "beacons"
+              }
+            }
+          }
+        ],
+        "type": "timeseries"
+      },
+      {
+        "datasource": null,
+        "description": "",
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "palette-classic"
+            },
+            "custom": {
+              "axisLabel": "",
+              "axisPlacement": "auto",
+              "barAlignment": 0,
+              "drawStyle": "line",
+              "fillOpacity": 50,
+              "gradientMode": "opacity",
+              "hideFrom": {
+                "legend": false,
+                "tooltip": false,
+                "viz": false
+              },
+              "lineInterpolation": "smooth",
+              "lineWidth": 1,
+              "pointSize": 1,
+              "scaleDistribution": {
+                "type": "linear"
+              },
+              "showPoints": "auto",
+              "spanNulls": false,
+              "stacking": {
+                "group": "A",
+                "mode": "none"
+              },
+              "thresholdsStyle": {
+                "mode": "off"
+              }
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                },
+                {
+                  "color": "red",
+                  "value": 80
+                }
+              ]
+            },
+            "unit": "HNT"
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 7,
+          "w": 8,
+          "x": 7,
+          "y": 0
+        },
+        "id": 9,
+        "options": {
+          "legend": {
+            "calcs": [],
+            "displayMode": "hidden",
+            "placement": "bottom"
+          },
+          "tooltip": {
+            "mode": "single"
+          }
+        },
+        "targets": [
+          {
+            "query": "timedMovingSum = (every, period, column=\"_value\", tables=<-) =>\n  tables\n    |> window(every: every, period: period)\n    |> sum(column:column)\n    |> duplicate(column: \"_stop\", as: \"_time\")\n    |> window(every: inf)\n\nfrom(bucket: \"dashboard\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"helium_activity\")\n  |> filter(fn: (r) => r[\"type\"] == \"rewards\")\n  |> filter(fn: (r) => r[\"hotspot\"] == \"helium-hotspot-address\")\n  |> timedMovingSum(every: 1h, period: 8h)\n  |> yield(name: \"sum\")",
+            "refId": "A"
+          }
+        ],
+        "title": "Rewards (8h moving)",
+        "transformations": [
+          {
+            "id": "renameByRegex",
+            "options": {
+              "regex": "(.*)",
+              "renamePattern": "reward"
+            }
+          }
+        ],
+        "type": "timeseries"
+      },
+      {
+        "datasource": null,
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "mappings": [],
+            "min": 0,
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                },
+                {
+                  "color": "red",
+                  "value": 80
+                }
+              ]
+            },
+            "unit": "HNT"
+          },
+          "overrides": [
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "beacons"
+              },
+              "properties": [
+                {
+                  "id": "unit",
+                  "value": "none"
+                },
+                {
+                  "id": "decimals",
+                  "value": 0
+                },
+                {
+                  "id": "color",
+                  "value": {
+                    "fixedColor": "rgba(255, 255, 0, 0.39)",
+                    "mode": "fixed"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "gridPos": {
+          "h": 3,
+          "w": 3,
+          "x": 15,
+          "y": 0
+        },
+        "hideTimeOverride": true,
+        "id": 18,
+        "options": {
+          "colorMode": "value",
+          "graphMode": "area",
+          "justifyMode": "auto",
+          "orientation": "horizontal",
+          "reduceOptions": {
+            "calcs": [
+              "lastNotNull"
+            ],
+            "fields": "",
+            "values": false
+          },
+          "text": {
+            "titleSize": 20,
+            "valueSize": 20
+          },
+          "textMode": "auto"
+        },
+        "pluginVersion": "8.0.1",
+        "targets": [
+          {
+            "query": "from(bucket: \"dashboard\")\n  |> range(start: -24h)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"helium_activity\")\n  |> filter(fn: (r) => r[\"type\"] == \"rewards\")\n  |> filter(fn: (r) => r[\"_field\"] == \"reward\")\n  |> filter(fn: (r) => r[\"hotspot\"] == \"helium-hotspot-address\")\n  |> set(key: \"_field\", value: \"24hr\")\n  |> yield(name: \"24hr\")\n\n  from(bucket: \"dashboard\")\n  |> range(start: -48h, stop: -24h)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"helium_activity\")\n  |> filter(fn: (r) => r[\"type\"] == \"rewards\")\n  |> filter(fn: (r) => r[\"_field\"] == \"reward\")\n  |> filter(fn: (r) => r[\"hotspot\"] == \"helium-hotspot-address\")\n  |> set(key: \"_field\", value: \"prev\")\n  |> yield(name: \"prev\")\n",
+            "refId": "A"
+          }
+        ],
+        "timeShift": "0d/d",
+        "title": "24hr rewards",
+        "transformations": [
+          {
+            "id": "seriesToColumns",
+            "options": {
+              "byField": "_time"
+            }
+          },
+          {
+            "id": "organize",
+            "options": {
+              "excludeByName": {},
+              "indexByName": {
+                "24hr {hotspot=\"helium-hotspot-address\", name=\"helium_activity\", type=\"rewards\"}": 1,
+                "_time": 0,
+                "prev {hotspot=\"helium-hotspot-address\", name=\"helium_activity\", type=\"rewards\"}": 2
+              },
+              "renameByName": {
+                "24hr {hotspot=\"helium-hotspot-address\", name=\"helium_activity\", type=\"rewards\"}": "24hr",
+                "prev {hotspot=\"helium-hotspot-address\", name=\"helium_activity\", type=\"rewards\"}": "prev",
+                "reward {hotspot=\"helium-hotspot-address\", name=\"helium_activity\", type=\"rewards\"}": "",
+                "reward {hotspot=\"helium-hotspot-address\", type=\"rewards\"}": "rewards",
+                "witnesses {hotspot=\"helium-hotspot-address\", name=\"helium_activity\", type=\"beacon_received\"}": ""
+              }
+            }
+          },
+          {
+            "id": "reduce",
+            "options": {
+              "includeTimeField": false,
+              "mode": "reduceFields",
+              "reducers": [
+                "sum"
+              ]
+            }
+          }
+        ],
+        "type": "stat"
+      },
+      {
+        "datasource": null,
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "mappings": [],
+            "min": 0,
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                },
+                {
+                  "color": "red",
+                  "value": 80
+                }
+              ]
+            },
+            "unit": "HNT"
+          },
+          "overrides": [
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "beacons"
+              },
+              "properties": [
+                {
+                  "id": "unit",
+                  "value": "none"
+                },
+                {
+                  "id": "decimals",
+                  "value": 0
+                },
+                {
+                  "id": "color",
+                  "value": {
+                    "fixedColor": "rgba(255, 255, 0, 0.39)",
+                    "mode": "fixed"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "gridPos": {
+          "h": 3,
+          "w": 3,
+          "x": 18,
+          "y": 0
+        },
+        "hideTimeOverride": true,
+        "id": 19,
+        "options": {
+          "colorMode": "value",
+          "graphMode": "area",
+          "justifyMode": "auto",
+          "orientation": "horizontal",
+          "reduceOptions": {
+            "calcs": [
+              "lastNotNull"
+            ],
+            "fields": "",
+            "values": false
+          },
+          "text": {
+            "titleSize": 20,
+            "valueSize": 20
+          },
+          "textMode": "auto"
+        },
+        "pluginVersion": "8.0.1",
+        "targets": [
+          {
+            "query": "from(bucket: \"dashboard\")\n  |> range(start: -1w)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"helium_activity\")\n  |> filter(fn: (r) => r[\"type\"] == \"rewards\")\n  |> filter(fn: (r) => r[\"_field\"] == \"reward\")\n  |> filter(fn: (r) => r[\"hotspot\"] == \"helium-hotspot-address\")\n  |> set(key: \"_field\", value: \"1w\")\n  |> yield(name: \"1w\")\n\n  from(bucket: \"dashboard\")\n  |> range(start: -2w, stop: -1w)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"helium_activity\")\n  |> filter(fn: (r) => r[\"type\"] == \"rewards\")\n  |> filter(fn: (r) => r[\"_field\"] == \"reward\")\n  |> filter(fn: (r) => r[\"hotspot\"] == \"helium-hotspot-address\")\n  |> set(key: \"_field\", value: \"prev\")\n  |> yield(name: \"prev\")\n",
+            "refId": "A"
+          }
+        ],
+        "timeShift": "0d/d",
+        "title": "7d rewards",
+        "transformations": [
+          {
+            "id": "seriesToColumns",
+            "options": {
+              "byField": "_time"
+            }
+          },
+          {
+            "id": "organize",
+            "options": {
+              "excludeByName": {},
+              "indexByName": {
+                "1w {hotspot=\"helium-hotspot-address\", name=\"helium_activity\", type=\"rewards\"}": 1,
+                "_time": 0,
+                "prev {hotspot=\"helium-hotspot-address\", name=\"helium_activity\", type=\"rewards\"}": 2
+              },
+              "renameByName": {
+                "1w {hotspot=\"helium-hotspot-address\", name=\"helium_activity\", type=\"rewards\"}": "7d",
+                "1w {hotspot=\"helium-hotspot-address\", type=\"rewards\"}": "",
+                "24hr {hotspot=\"helium-hotspot-address\", name=\"helium_activity\", type=\"rewards\"}": "24hr",
+                "_time": "",
+                "prev {hotspot=\"helium-hotspot-address\", name=\"helium_activity\", type=\"rewards\"}": "prev",
+                "reward {hotspot=\"helium-hotspot-address\", name=\"helium_activity\", type=\"rewards\"}": "",
+                "reward {hotspot=\"helium-hotspot-address\", type=\"rewards\"}": "rewards",
+                "witnesses {hotspot=\"helium-hotspot-address\", name=\"helium_activity\", type=\"beacon_received\"}": ""
+              }
+            }
+          },
+          {
+            "id": "reduce",
+            "options": {
+              "includeTimeField": false,
+              "mode": "reduceFields",
+              "reducers": [
+                "sum"
+              ]
+            }
+          }
+        ],
+        "type": "stat"
+      },
+      {
+        "datasource": null,
+        "description": "",
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "mappings": [],
+            "min": 0,
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                },
+                {
+                  "color": "red",
+                  "value": 80
+                }
+              ]
+            },
+            "unit": "HNT"
+          },
+          "overrides": [
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "beacons"
+              },
+              "properties": [
+                {
+                  "id": "unit",
+                  "value": "none"
+                },
+                {
+                  "id": "decimals",
+                  "value": 0
+                },
+                {
+                  "id": "color",
+                  "value": {
+                    "fixedColor": "rgba(255, 255, 0, 0.39)",
+                    "mode": "fixed"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "gridPos": {
+          "h": 3,
+          "w": 3,
+          "x": 21,
+          "y": 0
+        },
+        "hideTimeOverride": true,
+        "id": 20,
+        "options": {
+          "colorMode": "value",
+          "graphMode": "area",
+          "justifyMode": "auto",
+          "orientation": "horizontal",
+          "reduceOptions": {
+            "calcs": [
+              "lastNotNull"
+            ],
+            "fields": "",
+            "values": false
+          },
+          "text": {
+            "titleSize": 20,
+            "valueSize": 20
+          },
+          "textMode": "auto"
+        },
+        "pluginVersion": "8.0.1",
+        "targets": [
+          {
+            "query": "from(bucket: \"dashboard\")\n  |> range(start: -30d)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"helium_activity\")\n  |> filter(fn: (r) => r[\"type\"] == \"rewards\")\n  |> filter(fn: (r) => r[\"_field\"] == \"reward\")\n  |> filter(fn: (r) => r[\"hotspot\"] == \"helium-hotspot-address\")\n  |> set(key: \"_field\", value: \"30d\")\n  |> yield(name: \"30d\")\n\n  from(bucket: \"dashboard\")\n  |> range(start: -60d, stop: -30d)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"helium_activity\")\n  |> filter(fn: (r) => r[\"type\"] == \"rewards\")\n  |> filter(fn: (r) => r[\"_field\"] == \"reward\")\n  |> filter(fn: (r) => r[\"hotspot\"] == \"helium-hotspot-address\")\n  |> set(key: \"_field\", value: \"prev\")\n  |> yield(name: \"prev\")\n",
+            "refId": "A"
+          }
+        ],
+        "timeShift": "0d/d",
+        "title": "30d rewards",
+        "transformations": [
+          {
+            "id": "seriesToColumns",
+            "options": {
+              "byField": "_time"
+            }
+          },
+          {
+            "id": "organize",
+            "options": {
+              "excludeByName": {},
+              "indexByName": {
+                "1w {hotspot=\"helium-hotspot-address\", name=\"helium_activity\", type=\"rewards\"}": 1,
+                "_time": 0,
+                "prev {hotspot=\"helium-hotspot-address\", name=\"helium_activity\", type=\"rewards\"}": 2
+              },
+              "renameByName": {
+                "1w {hotspot=\"helium-hotspot-address\", name=\"helium_activity\", type=\"rewards\"}": "7d",
+                "1w {hotspot=\"helium-hotspot-address\", type=\"rewards\"}": "",
+                "24hr {hotspot=\"helium-hotspot-address\", name=\"helium_activity\", type=\"rewards\"}": "24hr",
+                "_time": "",
+                "prev {hotspot=\"helium-hotspot-address\", name=\"helium_activity\", type=\"rewards\"}": "prev",
+                "reward {hotspot=\"helium-hotspot-address\", name=\"helium_activity\", type=\"rewards\"}": "",
+                "reward {hotspot=\"helium-hotspot-address\", type=\"rewards\"}": "rewards",
+                "witnesses {hotspot=\"helium-hotspot-address\", name=\"helium_activity\", type=\"beacon_received\"}": ""
+              }
+            }
+          },
+          {
+            "id": "reduce",
+            "options": {
+              "includeTimeField": false,
+              "mode": "reduceFields",
+              "reducers": [
+                "sum"
+              ]
+            }
+          }
+        ],
+        "type": "stat"
+      },
+      {
+        "datasource": null,
+        "description": "",
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                }
+              ]
+            },
+            "unit": "dateTimeFromNow"
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 4,
+          "w": 6,
+          "x": 15,
+          "y": 3
+        },
+        "id": 13,
+        "options": {
+          "colorMode": "value",
+          "graphMode": "area",
+          "justifyMode": "auto",
+          "orientation": "horizontal",
+          "reduceOptions": {
+            "calcs": [
+              "lastNotNull"
+            ],
+            "fields": "/.*/",
+            "values": false
+          },
+          "text": {
+            "titleSize": 15,
+            "valueSize": 15
+          },
+          "textMode": "auto"
+        },
+        "pluginVersion": "8.0.1",
+        "targets": [
+          {
+            "query": "from(bucket: \"dashboard\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"helium_activity\")\n  |> last()\n  |> duplicate(column: \"_time\", as: \"last\")\n  |> keep(columns: [\"type\", \"last\"])\n  |> yield(name: \"mean\")",
+            "refId": "A"
+          }
+        ],
+        "title": "Last Events",
+        "transformations": [
+          {
+            "id": "renameByRegex",
+            "options": {
+              "regex": "last (.*)",
+              "renamePattern": "$1"
+            }
+          },
+          {
+            "id": "concatenate",
+            "options": {
+              "frameNameLabel": "frame",
+              "frameNameMode": "drop"
+            }
+          },
+          {
+            "id": "organize",
+            "options": {
+              "excludeByName": {},
+              "indexByName": {
+                "beacon_received": 1,
+                "beacon_sent": 2,
+                "challenge": 3,
+                "data_transfer": 4,
+                "rewards": 0
+              },
+              "renameByName": {
+                "beacon_received": "Witnessed Beacon",
+                "beacon_sent": "Sent Beacon",
+                "challenge": "Challenge",
+                "data_transfer": "Data Transfer",
+                "rewards": "Rewards"
+              }
+            }
+          }
+        ],
+        "type": "stat"
+      },
+      {
+        "datasource": "Helium Elections API",
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "blue",
+                  "value": null
+                }
+              ]
+            },
+            "unit": "dateTimeFromNow"
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 4,
+          "w": 3,
+          "x": 21,
+          "y": 3
+        },
+        "id": 23,
+        "options": {
+          "colorMode": "value",
+          "graphMode": "area",
+          "justifyMode": "auto",
+          "orientation": "auto",
+          "reduceOptions": {
+            "calcs": [
+              "lastNotNull"
+            ],
+            "fields": "/^time$/",
+            "values": false
+          },
+          "text": {},
+          "textMode": "auto"
+        },
+        "pluginVersion": "8.0.1",
+        "targets": [
+          {
+            "cacheDurationSeconds": 300,
+            "fields": [
+              {
+                "jsonPath": "$.data[0].time",
+                "type": "time"
+              }
+            ],
+            "method": "GET",
+            "queryParams": "",
+            "refId": "A",
+            "urlPath": ""
+          }
+        ],
+        "title": "Last Election",
+        "type": "stat"
+      },
+      {
+        "datasource": null,
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "palette-classic"
+            },
+            "custom": {
+              "axisLabel": "",
+              "axisPlacement": "auto",
+              "barAlignment": 0,
+              "drawStyle": "bars",
+              "fillOpacity": 100,
+              "gradientMode": "opacity",
+              "hideFrom": {
+                "legend": false,
+                "tooltip": false,
+                "viz": false
+              },
+              "lineInterpolation": "linear",
+              "lineWidth": 1,
+              "pointSize": 5,
+              "scaleDistribution": {
+                "type": "linear"
+              },
+              "showPoints": "auto",
+              "spanNulls": false,
+              "stacking": {
+                "group": "A",
+                "mode": "none"
+              },
+              "thresholdsStyle": {
+                "mode": "off"
+              }
+            },
+            "mappings": [],
+            "min": 0,
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                },
+                {
+                  "color": "red",
+                  "value": 80
+                }
+              ]
+            },
+            "unit": "HNT"
+          },
+          "overrides": [
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "beacons"
+              },
+              "properties": [
+                {
+                  "id": "custom.axisPlacement",
+                  "value": "right"
+                },
+                {
+                  "id": "unit",
+                  "value": "none"
+                },
+                {
+                  "id": "decimals",
+                  "value": 0
+                },
+                {
+                  "id": "custom.drawStyle",
+                  "value": "line"
+                },
+                {
+                  "id": "custom.fillOpacity",
+                  "value": 0
+                },
+                {
+                  "id": "color",
+                  "value": {
+                    "fixedColor": "rgba(255, 255, 0, 0.39)",
+                    "mode": "fixed"
+                  }
+                },
+                {
+                  "id": "custom.axisLabel",
+                  "value": "beacons"
+                }
+              ]
+            }
+          ]
+        },
+        "gridPos": {
+          "h": 7,
+          "w": 7,
+          "x": 0,
+          "y": 7
+        },
+        "id": 2,
+        "options": {
+          "legend": {
+            "calcs": [],
+            "displayMode": "list",
+            "placement": "bottom"
+          },
+          "tooltip": {
+            "mode": "multi"
+          }
+        },
+        "targets": [
+          {
+            "query": "from(bucket: \"dashboard\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"helium_activity\")\n  |> filter(fn: (r) => r[\"type\"] == \"rewards\")\n  |> filter(fn: (r) => r[\"_field\"] == \"reward\")\n  |> filter(fn: (r) => r[\"hotspot\"] == \"helium-hotspot-address\")\n  |> aggregateWindow(every: 1h, fn: sum, timeSrc: \"_start\", createEmpty: true)\n  |> yield(name: \"rewards\")\n\nfrom(bucket: \"dashboard\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"helium_activity\")\n  |> filter(fn: (r) => r[\"type\"] == \"beacon_received\")\n  |> filter(fn: (r) => r[\"_field\"] == \"witnesses\")\n  |> filter(fn: (r) => r[\"hotspot\"] == \"helium-hotspot-address\")\n  |> aggregateWindow(every: 1h, fn: count, timeSrc: \"_start\", createEmpty: true)\n  |> yield(name: \"beacons\")",
+            "refId": "A"
+          }
+        ],
+        "timeFrom": null,
+        "timeShift": "0h/h",
+        "title": "Hourly Activity",
+        "transformations": [
+          {
+            "id": "seriesToColumns",
+            "options": {
+              "byField": "_time"
+            }
+          },
+          {
+            "id": "organize",
+            "options": {
+              "excludeByName": {},
+              "indexByName": {
+                "_time": 0,
+                "reward {hotspot=\"helium-hotspot-address\", name=\"helium_activity\", type=\"rewards\"}": 1,
+                "witnesses {hotspot=\"helium-hotspot-address\", name=\"helium_activity\", type=\"beacon_received\"}": 2
+              },
+              "renameByName": {
+                "reward {hotspot=\"helium-hotspot-address\", name=\"helium_activity\", type=\"rewards\"}": "rewards",
+                "reward {hotspot=\"helium-hotspot-address\", type=\"rewards\"}": "rewards",
+                "witnesses {hotspot=\"helium-hotspot-address\", name=\"helium_activity\", type=\"beacon_received\"}": "beacons"
+              }
+            }
+          }
+        ],
+        "type": "timeseries"
+      },
+      {
+        "datasource": null,
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "palette-classic"
+            },
+            "custom": {
+              "axisLabel": "",
+              "axisPlacement": "auto",
+              "barAlignment": 0,
+              "drawStyle": "bars",
+              "fillOpacity": 100,
+              "gradientMode": "opacity",
+              "hideFrom": {
+                "legend": false,
+                "tooltip": false,
+                "viz": false
+              },
+              "lineInterpolation": "linear",
+              "lineWidth": 1,
+              "pointSize": 5,
+              "scaleDistribution": {
+                "type": "linear"
+              },
+              "showPoints": "auto",
+              "spanNulls": false,
+              "stacking": {
+                "group": "A",
+                "mode": "none"
+              },
+              "thresholdsStyle": {
+                "mode": "off"
+              }
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                },
+                {
+                  "color": "red",
+                  "value": 80
+                }
+              ]
+            }
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 7,
+          "w": 8,
+          "x": 7,
+          "y": 7
+        },
+        "hideTimeOverride": true,
+        "id": 15,
+        "options": {
+          "legend": {
+            "calcs": [],
+            "displayMode": "hidden",
+            "placement": "bottom"
+          },
+          "tooltip": {
+            "mode": "single"
+          }
+        },
+        "targets": [
+          {
+            "query": "from(bucket: \"dashboard\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"helium_activity\")\n  |> filter(fn: (r) => r[\"type\"] == \"beacon_sent\")\n  |> filter(fn: (r) => r[\"hotspot\"] == \"helium-hotspot-address\")\n  //|> aggregateWindow(every: 1h, fn: sum, timeSrc: \"_start\", createEmpty: true)\n  |> yield(name: \"beacons\")",
+            "refId": "A"
+          }
+        ],
+        "timeShift": "0h/h",
+        "title": "Witnesses",
+        "transformations": [
+          {
+            "id": "seriesToColumns",
+            "options": {
+              "byField": "_time"
+            }
+          },
+          {
+            "id": "organize",
+            "options": {
+              "excludeByName": {
+                "count {hotspot=\"helium-hotspot-address\", name=\"helium_activity\", type=\"beacon_sent\"}": true
+              },
+              "indexByName": {},
+              "renameByName": {
+                "count {hotspot=\"helium-hotspot-address\", name=\"helium_activity\", type=\"beacon_sent\"}": "beacons",
+                "witnesses {hotspot=\"helium-hotspot-address\", name=\"helium_activity\", type=\"beacon_sent\"}": "witness"
+              }
+            }
+          }
+        ],
+        "type": "timeseries"
+      },
+      {
+        "datasource": null,
+        "description": "",
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "palette-classic"
+            },
+            "custom": {
+              "axisLabel": "",
+              "axisPlacement": "auto",
+              "barAlignment": 0,
+              "drawStyle": "line",
+              "fillOpacity": 15,
+              "gradientMode": "none",
+              "hideFrom": {
+                "legend": false,
+                "tooltip": false,
+                "viz": false
+              },
+              "lineInterpolation": "linear",
+              "lineWidth": 1,
+              "pointSize": 5,
+              "scaleDistribution": {
+                "type": "linear"
+              },
+              "showPoints": "auto",
+              "spanNulls": false,
+              "stacking": {
+                "group": "A",
+                "mode": "none"
+              },
+              "thresholdsStyle": {
+                "mode": "off"
+              }
+            },
+            "decimals": 2,
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                },
+                {
+                  "color": "red",
+                  "value": 80
+                }
+              ]
+            },
+            "unit": "currencyUSD"
+          },
+          "overrides": [
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "USD CoinGecko"
+              },
+              "properties": [
+                {
+                  "id": "color",
+                  "value": {
+                    "fixedColor": "blue",
+                    "mode": "fixed"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "gridPos": {
+          "h": 6,
+          "w": 6,
+          "x": 15,
+          "y": 7
+        },
+        "id": 5,
+        "links": [
+          {
+            "targetBlank": true,
+            "title": "HNT History",
+            "url": "https://www.cryptocompare.com/coins/hnt/overview/USD"
+          }
+        ],
+        "options": {
+          "legend": {
+            "calcs": [
+              "last"
+            ],
+            "displayMode": "list",
+            "placement": "bottom"
+          },
+          "tooltip": {
+            "mode": "single"
+          }
+        },
+        "targets": [
+          {
+            "query": "from(bucket: \"dashboard\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"helium_price\")\n  |> filter(fn: (r) => r[\"_field\"] == \"USD\")\n  |> filter(fn: (r) => r[\"source\"] == \"CoinGecko\")\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\n  |> yield(name: \"mean\")",
+            "refId": "A"
+          }
+        ],
+        "title": "Helium Price (USD)",
+        "type": "timeseries"
+      },
+      {
+        "datasource": null,
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "decimals": 2,
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "blue",
+                  "value": null
+                },
+                {
+                  "color": "red",
+                  "value": 80
+                }
+              ]
+            },
+            "unit": "currencyUSD"
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 3,
+          "w": 3,
+          "x": 21,
+          "y": 7
+        },
+        "id": 7,
+        "options": {
+          "colorMode": "value",
+          "graphMode": "area",
+          "justifyMode": "auto",
+          "orientation": "auto",
+          "reduceOptions": {
+            "calcs": [
+              "lastNotNull"
+            ],
+            "fields": "",
+            "values": false
+          },
+          "text": {},
+          "textMode": "auto"
+        },
+        "pluginVersion": "8.0.1",
+        "targets": [
+          {
+            "query": "from(bucket: \"dashboard\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"helium_price\")\n  |> filter(fn: (r) => r[\"_field\"] == \"USD\")\n  |> filter(fn: (r) => r[\"source\"] == \"CoinGecko\")\n  |> aggregateWindow(every: v.windowPeriod, fn: last, createEmpty: false)\n  |> yield(name: \"mean\")",
+            "refId": "A"
+          }
+        ],
+        "title": "Helium (USD)",
+        "type": "stat"
+      },
+      {
+        "datasource": null,
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "palette-classic"
+            },
+            "custom": {
+              "axisLabel": "",
+              "axisPlacement": "auto",
+              "barAlignment": 0,
+              "drawStyle": "bars",
+              "fillOpacity": 100,
+              "gradientMode": "opacity",
+              "hideFrom": {
+                "legend": false,
+                "tooltip": false,
+                "viz": false
+              },
+              "lineInterpolation": "linear",
+              "lineWidth": 1,
+              "pointSize": 5,
+              "scaleDistribution": {
+                "type": "linear"
+              },
+              "showPoints": "auto",
+              "spanNulls": false,
+              "stacking": {
+                "group": "A",
+                "mode": "none"
+              },
+              "thresholdsStyle": {
+                "mode": "off"
+              }
+            },
+            "mappings": [],
+            "min": 0,
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                },
+                {
+                  "color": "red",
+                  "value": 80
+                }
+              ]
+            },
+            "unit": "none"
+          },
+          "overrides": [
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "beacons"
+              },
+              "properties": [
+                {
+                  "id": "custom.axisPlacement",
+                  "value": "right"
+                },
+                {
+                  "id": "unit",
+                  "value": "none"
+                },
+                {
+                  "id": "decimals",
+                  "value": 1
+                },
+                {
+                  "id": "custom.drawStyle",
+                  "value": "line"
+                },
+                {
+                  "id": "custom.fillOpacity",
+                  "value": 0
+                }
+              ]
+            }
+          ]
+        },
+        "gridPos": {
+          "h": 7,
+          "w": 9,
+          "x": 15,
+          "y": 13
+        },
+        "hideTimeOverride": true,
+        "id": 3,
+        "options": {
+          "legend": {
+            "calcs": [],
+            "displayMode": "hidden",
+            "placement": "bottom"
+          },
+          "tooltip": {
+            "mode": "multi"
+          }
+        },
+        "targets": [
+          {
+            "query": "from(bucket: \"dashboard\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"helium_activity\")\n  |> filter(fn: (r) => r[\"type\"] == \"challenge\")\n  |> filter(fn: (r) => r[\"_field\"] == \"count\")\n  |> filter(fn: (r) => r[\"hotspot\"] == \"helium-hotspot-address\")\n  |> aggregateWindow(every: 1h, fn: sum, timeSrc: \"_start\", createEmpty: true)\n  |> yield(name: \"challenges\")",
+            "refId": "A"
+          }
+        ],
+        "timeShift": "0h/h",
+        "title": "Challenges",
+        "transformations": [
+          {
+            "id": "seriesToColumns",
+            "options": {
+              "byField": "_time"
+            }
+          },
+          {
+            "id": "organize",
+            "options": {
+              "excludeByName": {},
+              "indexByName": {
+                "_time": 0,
+                "reward {hotspot=\"helium-hotspot-address\", name=\"helium_activity\", type=\"rewards\"}": 1,
+                "witnesses {hotspot=\"helium-hotspot-address\", name=\"helium_activity\", type=\"beacon_received\"}": 2
+              },
+              "renameByName": {
+                "count {hotspot=\"helium-hotspot-address\", type=\"challenge\"}": "challenges",
+                "reward {hotspot=\"helium-hotspot-address\", name=\"helium_activity\", type=\"rewards\"}": "rewards",
+                "reward {hotspot=\"helium-hotspot-address\", type=\"rewards\"}": "rewards",
+                "witnesses {hotspot=\"helium-hotspot-address\", name=\"helium_activity\", type=\"beacon_received\"}": "beacons"
+              }
+            }
+          }
+        ],
+        "type": "timeseries"
+      },
+      {
+        "datasource": null,
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "palette-classic"
+            },
+            "custom": {
+              "axisLabel": "",
+              "axisPlacement": "auto",
+              "barAlignment": 0,
+              "drawStyle": "line",
+              "fillOpacity": 100,
+              "gradientMode": "opacity",
+              "hideFrom": {
+                "legend": false,
+                "tooltip": false,
+                "viz": false
+              },
+              "lineInterpolation": "linear",
+              "lineWidth": 1,
+              "pointSize": 3,
+              "scaleDistribution": {
+                "type": "linear"
+              },
+              "showPoints": "auto",
+              "spanNulls": false,
+              "stacking": {
+                "group": "A",
+                "mode": "none"
+              },
+              "thresholdsStyle": {
+                "mode": "off"
+              }
+            },
+            "mappings": [
+              {
+                "options": {
+                  "match": "null+nan",
+                  "result": {
+                    "index": 0,
+                    "text": "0"
+                  }
+                },
+                "type": "special"
+              }
+            ],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                }
+              ]
+            },
+            "unit": "none"
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 6,
+          "w": 7,
+          "x": 0,
+          "y": 14
+        },
+        "id": 21,
+        "options": {
+          "legend": {
+            "calcs": [],
+            "displayMode": "hidden",
+            "placement": "bottom"
+          },
+          "tooltip": {
+            "mode": "multi"
+          }
+        },
+        "targets": [
+          {
+            "query": "from(bucket: \"dashboard\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"helium_stats\")\n  |> filter(fn: (r) => r[\"_field\"] == \"challenges\")\n  //|> aggregateWindow(every: 1h, fn: sum, timeSrc: \"_start\", createEmpty: true)\n  |> difference()\n  |> timedMovingAverage(every: 10m, period: 1h)\n  |> yield(name: \"data\")\n\n",
+            "refId": "A"
+          }
+        ],
+        "timeFrom": null,
+        "timeShift": null,
+        "title": "Network Stats",
+        "transformations": [
+          {
+            "id": "renameByRegex",
+            "options": {
+              "regex": "(dc.*)",
+              "renamePattern": "DC"
+            }
+          },
+          {
+            "id": "renameByRegex",
+            "options": {
+              "regex": "(packets.*)",
+              "renamePattern": "Packets"
+            }
+          }
+        ],
+        "type": "timeseries"
+      },
+      {
+        "datasource": null,
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "palette-classic"
+            },
+            "custom": {
+              "axisLabel": "",
+              "axisPlacement": "auto",
+              "barAlignment": 0,
+              "drawStyle": "line",
+              "fillOpacity": 100,
+              "gradientMode": "opacity",
+              "hideFrom": {
+                "legend": false,
+                "tooltip": false,
+                "viz": false
+              },
+              "lineInterpolation": "linear",
+              "lineWidth": 1,
+              "pointSize": 5,
+              "scaleDistribution": {
+                "type": "linear"
+              },
+              "showPoints": "auto",
+              "spanNulls": false,
+              "stacking": {
+                "group": "A",
+                "mode": "none"
+              },
+              "thresholdsStyle": {
+                "mode": "off"
+              }
+            },
+            "mappings": [
+              {
+                "options": {
+                  "match": "null+nan",
+                  "result": {
+                    "index": 0,
+                    "text": "0"
+                  }
+                },
+                "type": "special"
+              }
+            ],
+            "min": 0,
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                }
+              ]
+            },
+            "unit": "none"
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 6,
+          "w": 8,
+          "x": 7,
+          "y": 14
+        },
+        "id": 11,
+        "options": {
+          "legend": {
+            "calcs": [],
+            "displayMode": "list",
+            "placement": "bottom"
+          },
+          "tooltip": {
+            "mode": "multi"
+          }
+        },
+        "targets": [
+          {
+            "query": "from(bucket: \"dashboard\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"helium_activity\")\n  |> filter(fn: (r) => r[\"type\"] == \"data_transfer\")\n  |> filter(fn: (r) => r[\"hotspot\"] == \"helium-hotspot-address\")\n  |> aggregateWindow(every: 1h, fn: sum, timeSrc: \"_start\", createEmpty: true)\n  |> fill(value: 0)\n  |> yield(name: \"data\")",
+            "refId": "A"
+          }
+        ],
+        "timeFrom": null,
+        "timeShift": null,
+        "title": "Data Transfer",
+        "transformations": [
+          {
+            "id": "renameByRegex",
+            "options": {
+              "regex": "(dc.*)",
+              "renamePattern": "DC"
+            }
+          },
+          {
+            "id": "renameByRegex",
+            "options": {
+              "regex": "(packets.*)",
+              "renamePattern": "Packets"
+            }
+          }
+        ],
+        "type": "timeseries"
+      },
+      {
+        "datasource": null,
+        "description": "",
+        "gridPos": {
+          "h": 6,
+          "w": 9,
+          "x": 0,
+          "y": 20
+        },
+        "id": 17,
+        "options": {
+          "content": "* Flag invalid beacons",
+          "mode": "markdown"
+        },
+        "pluginVersion": "8.0.1",
+        "title": "To Do",
+        "type": "text"
+      }
+    ],
+    "refresh": false,
+    "schemaVersion": 30,
+    "style": "dark",
+    "tags": [],
+    "templating": {
+      "list": []
+    },
+    "time": {
+      "from": "now-14d",
+      "to": "now"
+    },
+    "timepicker": {},
+    "timezone": "",
+    "title": "15. Helium",
+    "uid": "6weDbEinz",
+    "version": 61
+  }

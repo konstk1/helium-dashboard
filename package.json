@@ -1,0 +1,29 @@
+{
+  "name": "helium-dashboard",
+  "version": "1.0.0",
+  "description": "Data capture for helium dashboard",
+  "main": "index.js",
+  "repository": "https://github.com/konstk1/helium-dashboard.git",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "start": "node test/test_lambda.js",
+    "zip": "zip -r z_function.zip index.js node_modules src",
+    "upload": "aws lambda update-function-code --function-name dashboard-data-cap --zip-file fileb://z_function.zip",
+    "deploy": "npm run zip && npm run upload",
+    "invoke": "aws lambda invoke --function-name dashboard-data-cap /dev/null --log-type Tail --query 'LogResult' --output text | base64 -d"
+  },
+  "dependencies": {
+    "@helium/http": "^3.36.7",
+    "@influxdata/influxdb-client": "^1.9.0",
+    "@influxdata/influxdb-client-apis": "^1.9.0",
+    "@types/tough-cookie": "^4.0.0",
+    "axios": "^0.21.1",
+    "axios-cookiejar-support": "^1.0.1",
+    "luxon": "^1.24.1",
+    "tough-cookie": "^4.0.0"
+  },
+  "devDependencies": {
+    "dotenv": "^8.2.0"
+  }
+}
