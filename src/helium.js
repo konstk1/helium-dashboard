@@ -138,12 +138,12 @@ async function processHeliumStats() {
 
 async function processHelium() {
   console.log('Processing helium');
-  let funcList = (process.env.HELIUM_HOTSPOT.split(",")).map(function (hotspot) {
+  let processHotspotsList = (process.env.HELIUM_HOTSPOT.split(",")).map(function (hotspot) {
     return processHotspotActivity(hotspot.trim(), DateTime.local().minus({ hours: HOTSPOT_LOOKBACK_HOURS }));
   });
 
   await Promise.all([
-    ...funcList,
+    ...processHotspotsList,
     processHeliumStats(),
     getPrice(),
   ]);
