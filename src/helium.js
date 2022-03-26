@@ -19,7 +19,7 @@ const activityType = {
 
 async function getPrice() {
   const response = await axios('https://api.coingecko.com/api/v3/simple/price?ids=helium&vs_currencies=USD');
-  console.log('Helium: price: ', response.data);
+  console.log('Helium: price:', response.data);
 
   const point = new Point("helium_price")
     .tag('source', 'CoinGecko')
@@ -33,12 +33,13 @@ async function accountStats() {
   console.log('response :>> ', response);
 }
 
-async function processHotspotActivity(sinceDate) {
+async function processHotspotActivity(hotspotIdentifier, sinceDate) {
   let activities = [];
   let oldestTime = DateTime.now;
-  let hotspot = await helium.hotspots.get(process.env.HELIUM_HOTSPOT);
+  let hotspot = await helium.hotspots.get(hotspotIdentifier);
+  let hotspotName = hotspot.name
 
-  console.log('Helium: fetching activity since ', sinceDate.toString());
+  console.log('Helium: fetching activity since', sinceDate.toString(), 'for hotspot', hotspotName);
   let page = await hotspot.activity.list();
 
   // fetch all activities after specified date
@@ -47,7 +48,7 @@ async function processHotspotActivity(sinceDate) {
     activities.push(...acts);
 
     // console.log(`Page ${page.data.length} vs filtered ${acts.length}`)
-    
+
     // if data was filtered out (timestamp was reached) or no more data, then stop here
     if (acts.length < page.data.length || !page.hasMore) {
       break;
@@ -55,21 +56,23 @@ async function processHotspotActivity(sinceDate) {
 
     page = await page.nextPage();
   }
-  
+
   if (activities.length == 0) {
-    console.log(`No activities since ${sinceDate.toString()}`);
+    console.log(`Helium: No activities since ${sinceDate.toString()} for hotspot ${hotspotName}`);
     return;
   }
 
-  console.log(`Helium: fetched ${activities.length} activities (first ${DateTime.fromSeconds(activities[activities.length-1].time).toString()})`);
+  console.log(`Helium: fetched ${activities.length} activities (first ${DateTime.fromSeconds(activities[activities.length-1].time).toString()}) for hotspot ${hotspotName}`);
   // activities.map(act => console.log(DateTime.fromSeconds(act.time).toString()));
 
   // convert activities to Influx points
   const points = activities.map(act => {
     const point = new Point(heliumActivityMeasurement)
       .timestamp(DateTime.fromSeconds(act.time).toJSDate())
-      .tag('hotspot', process.env.HELIUM_HOTSPOT);
-    
+      .tag('hotspot', hotspotIdentifier)
+      .tag('name', hotspotName)
+      .tag('geocode', (hotspot.geocode.shortCity + ", " + hotspot.geocode.shortStreet));
+
     if (act instanceof RewardsV1) {
 
       point.tag('type', 'rewards');
@@ -78,7 +81,7 @@ async function processHotspotActivity(sinceDate) {
 
     } else if (act.type == 'poc_receipts_v1') {
 
-      if (act.path[0].challengee == process.env.HELIUM_HOTSPOT) {
+      if (act.path[0].challengee == hotspotIdentifier) {
         point.tag('type', 'beacon_sent');
         // console.log('Beacon sent: witnesses ', act.path[0].witnesses.length);
       } else {
@@ -122,7 +125,7 @@ async function processHeliumStats() {
   console.log('Helium: collecting network stats');
 
   let point = new Point("helium_stats");
-  point.timestamp(new Date());        // now
+  point.timestamp(new Date());  // now
 
   point.intField('transactions', data.counts.transactions);
   point.intField('challenges', data.counts.challenges);
@@ -135,9 +138,12 @@ async function processHeliumStats() {
 
 async function processHelium() {
   console.log('Processing helium');
+  let processHotspotsList = (process.env.HELIUM_HOTSPOT.split(",")).map(function (hotspot) {
+    return processHotspotActivity(hotspot.trim(), DateTime.local().minus({ hours: HOTSPOT_LOOKBACK_HOURS }));
+  });
 
   await Promise.all([
-    processHotspotActivity(DateTime.local().minus({ hours: HOTSPOT_LOOKBACK_HOURS })),
+    ...processHotspotsList,
     processHeliumStats(),
     getPrice(),
   ]);
