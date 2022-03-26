@@ -4,7 +4,7 @@ const { Influx, Point } = require('./influx');
 const { default: axios } = require('axios');
 
 // number of hours to go back to fetch hotspot activity
-const HOTSPOT_LOOKBACK_HOURS = 5;
+const HOTSPOT_LOOKBACK_HOURS = 4;
 
 const heliumActivityMeasurement = 'helium_activity';
 
