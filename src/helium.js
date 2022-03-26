@@ -58,7 +58,7 @@ async function processHotspotActivity(hotspotIdentifier, sinceDate) {
   }
 
   if (activities.length == 0) {
-    console.log(`No activities since ${sinceDate.toString()} for hotspot ${hotspotName}`);
+    console.log(`Helium: No activities since ${sinceDate.toString()} for hotspot ${hotspotName}`);
     return;
   }
 
