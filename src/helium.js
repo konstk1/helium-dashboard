@@ -4,7 +4,7 @@ const { Influx, Point } = require('./influx');
 const { default: axios } = require('axios');
 
 // number of hours to go back to fetch hotspot activity
-const HOTSPOT_LOOKBACK_HOURS = 4;
+const HOTSPOT_LOOKBACK_HOURS = 5;
 
 const heliumActivityMeasurement = 'helium_activity';
 
@@ -37,8 +37,9 @@ async function processHotspotActivity(hotspotIdentifier, sinceDate) {
   let activities = [];
   let oldestTime = DateTime.now;
   let hotspot = await helium.hotspots.get(hotspotIdentifier);
+  let hotspotName = hotspot.name
 
-  console.log('Helium: fetching activity since', sinceDate.toString(), 'for hotspot', hotspotIdentifier);
+  console.log('Helium: fetching activity since', sinceDate.toString(), 'for hotspot', hotspotName);
   let page = await hotspot.activity.list();
 
   // fetch all activities after specified date
@@ -57,11 +58,11 @@ async function processHotspotActivity(hotspotIdentifier, sinceDate) {
   }
 
   if (activities.length == 0) {
-    console.log(`No activities since ${sinceDate.toString()} for hotspot ${hotspotIdentifier}`);
+    console.log(`No activities since ${sinceDate.toString()} for hotspot ${hotspotName}`);
     return;
   }
 
-  console.log(`Helium: fetched ${activities.length} activities (first ${DateTime.fromSeconds(activities[activities.length-1].time).toString()}) for hotspot ${hotspotIdentifier}`);
+  console.log(`Helium: fetched ${activities.length} activities (first ${DateTime.fromSeconds(activities[activities.length-1].time).toString()}) for hotspot ${hotspotName}`);
   // activities.map(act => console.log(DateTime.fromSeconds(act.time).toString()));
 
   // convert activities to Influx points
@@ -69,7 +70,7 @@ async function processHotspotActivity(hotspotIdentifier, sinceDate) {
     const point = new Point(heliumActivityMeasurement)
       .timestamp(DateTime.fromSeconds(act.time).toJSDate())
       .tag('hotspot', hotspotIdentifier)
-      .tag('name', hotspot.name)
+      .tag('name', hotspotName)
       .tag('geocode', (hotspot.geocode.shortCity + ", " + hotspot.geocode.shortStreet));
 
     if (act instanceof RewardsV1) {
