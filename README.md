@@ -72,7 +72,7 @@ sudo grafana-cli plugins install marcusolsson-json-datasource
 ```
 
 ### Import dashboard json (if new)
-* Make sure to replace all instances of `helium-hotspot-address` in `helium_dashboard.json` with address of your helium hotspot.
+* InfluxDB needs to be the default datastore of the grafana server. If not, replace the datastore name on the json file
 
 ### Migrate previous dashboards (if restoring)
 * Copy `/var/lib/grafana/grafana.db`
