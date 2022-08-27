@@ -120,7 +120,7 @@ async function processHotspotActivity(hotspotIdentifier, sinceDate) {
 }
 
 async function processHeliumStats() {
-  const response = await axios.get('https://api.helium.io/v1/stats');
+  const response = await axios.get('https://api.helium.io/v1/stats',{ headers: { 'User-Agent': 'Helium Dashboard/0.1 (konstk1)'}});
   const data = response.data.data;
   console.log('Helium: collecting network stats');
 
