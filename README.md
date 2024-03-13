@@ -3,10 +3,7 @@
 ![Dashboard](/images/dashboard.png)
 
 ## Note
-If you have any questions, feel free to create an issue. I won't be able to hand hold anyone through the setup, but will be happy to answers simple questions. 
-
-If you find this useful and would like to donate some HNT, the wallet is below:
-`14FV9FqVXZXQo6UK5bMfy76fwTdxVQEz3mNf7WJLsrQEMNtM5jF`
+If you have any questions, feel free to create an issue. I won't be able to hand-hold anyone through the setup, but I will be happy to answer simple questions. 
 
 ![QR](/images/helium_wallet_qr.png)
 
